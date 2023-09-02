@@ -1,11 +1,14 @@
 package com.ITProyect41.Biblioteca.Persistence;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import javax.naming.Name;
 import java.util.List;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idCategory")
 @Data
 @Entity
 @Table(name = "Categoria")
