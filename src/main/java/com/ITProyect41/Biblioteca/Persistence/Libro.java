@@ -1,8 +1,11 @@
 package com.ITProyect41.Biblioteca.Persistence;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idBook")
 @Data
 @Entity
 @Table(name = "Libro")
@@ -16,11 +19,6 @@ public class Libro {
     @Column(name = "nombre", nullable = false)
     private String name;
 
-    @Column(name = "autor_id")
-    private long idAuthor;
-
-    @Column(name = "categoria_id")
-    private long idCategory;
 
     @Column(name = "precio")
     private double price;
