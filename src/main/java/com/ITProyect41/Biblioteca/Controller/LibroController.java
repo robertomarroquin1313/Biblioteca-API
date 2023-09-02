@@ -1,16 +1,18 @@
 package com.ITProyect41.Biblioteca.Controller;
 
 import com.ITProyect41.Biblioteca.Persistence.Libro;
-import com.ITProyect41.Biblioteca.Service.Intercafe.LibroService;
+import com.ITProyect41.Biblioteca.Service.Intercafe.Interface.LibroService;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/libros")
+@RequestMapping("/api/libros")
 public class LibroController {
     private final LibroService libroService;
 
@@ -19,34 +21,48 @@ public class LibroController {
         this.libroService = libroService;
     }
 
-    @GetMapping("/guardar")
-    public List<Libro> obtenerTodosLosLibros() {
-        return libroService.obtenerTodosLosLibros();
+    @GetMapping("/obtener")
+    public ResponseEntity<List<Libro>> obtenerTodosLosLibros() {
+        List<Libro> libros = libroService.obtenerTodosLosLibros();
+        return new ResponseEntity<>(libros, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public Libro obtenerLibroPorId(@PathVariable Long id) {
-        return libroService.obtenerLibroPorId(id);
+    public ResponseEntity<Libro> obtenerLibroPorId(@PathVariable Long id) {
+        Libro libro = libroService.obtenerLibroPorId(id);
+        if (libro != null) {
+            return new ResponseEntity<>(libro, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/crear")
-    public Libro crearLibro(@RequestBody Libro libro) {
-        return libroService.guardarLibro(libro);
+    public ResponseEntity<Libro> crearLibro(@RequestBody Libro libro) {
+        Libro nuevoLibro = libroService.guardarLibro(libro);
+        return new ResponseEntity<>(nuevoLibro, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public Libro actualizarLibro(@PathVariable Long id, @RequestBody Libro libro) {
-        // Verifica si el libro con el ID especificado existe antes de actualizarlo
-        if (libroService.obtenerLibroPorId(id) == null) {
+    @PutMapping("/mod/{id}")
+    public ResponseEntity<Libro> actualizarLibro(@PathVariable Long id, @RequestBody Libro libro) {
+        Libro libroExistente = libroService.obtenerLibroPorId(id);
+        if (libroExistente != null) {
             libro.setIdBook(id);
-            return libroService.guardarLibro(libro);
+            Libro libroActualizado = libroService.guardarLibro(libro);
+            return new ResponseEntity<>(libroActualizado, HttpStatus.OK);
         } else {
-            throw new ResourceNotFoundException("Libro no encontrado con ID: " + id);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping("/eliminar/{id}")
-    public void eliminarLibro(@PathVariable Long id) {
-        libroService.eliminarLibro(id);
+    public ResponseEntity<Void> eliminarLibro(@PathVariable Long id) {
+        Libro libroExistente = libroService.obtenerLibroPorId(id);
+        if (libroExistente != null) {
+            libroService.eliminarLibro(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }
